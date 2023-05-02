@@ -70,8 +70,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return static_cast<int>(msg.wParam);
         
         
-        //TESTING
-        //TESTING LINE 2
-        //testing line 3
-        //testing line 4
+//deleted now I am testing something else
     }
