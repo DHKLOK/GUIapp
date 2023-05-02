@@ -69,6 +69,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         return static_cast<int>(msg.wParam);
         
-        
-//deleted now I am testing something else
+
+//Figuring out pull requests
     }
