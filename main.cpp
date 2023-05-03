@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "resource.h"
+#include "Resource.h"
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -13,6 +13,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         // Handle window painting
         ValidateRect(hWnd, NULL);
         break;
+    
+    case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        switch (wmId)
+        {
+        case ID_FILE_EXIT:
+            // Handle "Exit" command
+            PostQuitMessage(0);
+            break;
+
+        case ID_HELP_ABOUT:
+            // Handle "About" command
+            MessageBox(hWnd, L"Paul's Project\nVersion 1.0", L"About", MB_OK | MB_ICONINFORMATION);
+            break;
+
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    }
 
     default:
         // Forward unhandled messages to the default window procedure
@@ -48,7 +69,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         // Step 2: Create the window
         HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"Pauls Project",
             WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-            500, 300, NULL, NULL, hInstance, NULL);
+            500, 300, NULL, LoadMenu(hInstance, MAKEINTRESOURCE(MENU_MAIN)), hInstance, NULL);
 
         if (!hWnd)
         {
