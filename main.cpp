@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "resource.h"
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
