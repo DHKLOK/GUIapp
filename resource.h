@@ -1,9 +1,8 @@
-//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by GUIapp.rc
+#define MENU_MAIN 100
+#define ID_FILE_EXIT 101
+#define ID_HELP_ABOUT 102
 
-// Next default values for new objects
-// 
+
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        101
