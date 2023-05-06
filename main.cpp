@@ -104,6 +104,7 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 
         return TRUE;
     }
+
     }
 
 
@@ -142,7 +143,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         case ID_HELP_ABOUT:
             // Handle "About" command
-            MessageBox(hWnd, L"Paul's Project\nVersion 1.0", L"About", MB_OK | MB_ICONINFORMATION);
+            MessageBox(hWnd, L"Paul's Project\nVersion 1.1", L"About", MB_OK | MB_ICONINFORMATION);
             break;
 
         /*case ID_MENU_BANANA:
