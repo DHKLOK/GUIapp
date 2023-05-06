@@ -42,6 +42,8 @@ INT_PTR CALLBACK BananaDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HBITMAP hBitmap = NULL;
+    const int padding = 40;
+    const int bottompadding = 40;
 
     switch (message)
     {
@@ -52,84 +54,22 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
             hBitmap = (HBITMAP)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_LOWRESPIC_IMAGE), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
         }
         SendDlgItemMessage(hDlg, IDC_LOWRESPIC_PICTURE, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hBitmap);
-        return TRUE;
-    }
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return TRUE;
-        }
-        break;
-    case WM_SIZE:
-    {
-        int width = LOWORD(lParam);
-        int height = HIWORD(lParam);
 
-        // Resize the image control
+        // Get the image dimensions
+        BITMAP bitmapInfo;
+        GetObject(hBitmap, sizeof(BITMAP), &bitmapInfo);
+        int imageWidth = bitmapInfo.bmWidth;
+        int imageHeight = bitmapInfo.bmHeight;
+
+        // Resize the dialog window
+        SetWindowPos(hDlg, NULL, 0, 0, imageWidth + 2 * padding, imageHeight + 2 * bottompadding, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+
+        // Move the image control
         HWND hImageControl = GetDlgItem(hDlg, IDC_LOWRESPIC_PICTURE);
-        SetWindowPos(hImageControl, NULL, (width - 230) / 2, 10, width - 20, height - 20, SWP_NOZORDER | SWP_NOACTIVATE);
-
-        // Load the original image
-        HBITMAP hOriginalBitmap = (HBITMAP)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_LOWRESPIC_IMAGE), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
-
-        // Create a new resized image maintaining aspect ratio
-        HBITMAP hResizedBitmap = NULL;
-        {
-            HDC hdcScreen = GetDC(NULL);
-            HDC hdcOriginal = CreateCompatibleDC(hdcScreen);
-            HDC hdcResized = CreateCompatibleDC(hdcScreen);
-
-            HBITMAP hOldOriginalBitmap = (HBITMAP)SelectObject(hdcOriginal, hOriginalBitmap);
-
-            // Calculate new width and height while maintaining aspect ratio
-            BITMAP originalBitmapInfo;
-            GetObject(hOriginalBitmap, sizeof(BITMAP), &originalBitmapInfo);
-            int originalWidth = originalBitmapInfo.bmWidth;
-            int originalHeight = originalBitmapInfo.bmHeight;
-            float aspectRatio = (float)originalWidth / originalHeight;
-
-            int newWidth = (int)((height - 20) * aspectRatio);
-            int newHeight = height - 20;
-
-            // Create a compatible bitmap with the new dimensions
-            hResizedBitmap = CreateCompatibleBitmap(hdcScreen, newWidth, newHeight);
-            HBITMAP hOldResizedBitmap = (HBITMAP)SelectObject(hdcResized, hResizedBitmap);
-
-            // Stretch the original image to fit the new dimensions
-            SetStretchBltMode(hdcResized, HALFTONE);
-            StretchBlt(hdcResized, 0, 0, newWidth, newHeight, hdcOriginal, 0, 0, originalWidth, originalHeight, SRCCOPY);
-
-            SelectObject(hdcOriginal, hOldOriginalBitmap);
-            SelectObject(hdcResized, hOldResizedBitmap);
-
-            DeleteDC(hdcOriginal);
-            DeleteDC(hdcResized);
-            ReleaseDC(NULL, hdcScreen);
-        }
-
-        // Set the resized image to the image control
-        SendMessage(hImageControl, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hResizedBitmap);
-
-        // Clean up
-        DeleteObject(hOriginalBitmap);
-        if (hBitmap)
-        {
-            DeleteObject(hBitmap);
-            hBitmap = NULL;
-        }
-        hBitmap = hResizedBitmap;
+        SetWindowPos(hImageControl, NULL, padding, padding, imageWidth, imageHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 
         return TRUE;
     }
-
-
-
-
-
-
-
-    
     case WM_CLOSE:
     {
         if (hBitmap)
@@ -140,11 +80,44 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
         EndDialog(hDlg, 0);
         return TRUE;
     }
+    case WM_SIZE:
+    {
+        int newWidth = LOWORD(lParam);
+        int newHeight = HIWORD(lParam);
+
+        HWND hImageControl = GetDlgItem(hDlg, IDC_LOWRESPIC_PICTURE);
+
+        int imageWidth = 0, imageHeight = 0;
+
+        if (hBitmap != NULL)
+        {
+            BITMAP bitmapInfo;
+            GetObject(hBitmap, sizeof(BITMAP), &bitmapInfo);
+            imageWidth = bitmapInfo.bmWidth;
+            imageHeight = bitmapInfo.bmHeight;
+        }
+
+        int newX = (newWidth - imageWidth) / 2;
+        int newY = (newHeight - imageHeight) / 2;
+
+        SetWindowPos(hImageControl, NULL, newX, newY, 0, 0, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
+
+        return TRUE;
+    }
     }
 
 
     return FALSE;
+
 }
+
+
+
+
+
+
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_DESTROY:
