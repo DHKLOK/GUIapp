@@ -61,6 +61,22 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
         int imageWidth = bitmapInfo.bmWidth;
         int imageHeight = bitmapInfo.bmHeight;
 
+        // Get screen dimensions
+        int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+        int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+        float aspectRatio = (float)imageWidth / (float)imageHeight;
+        if (imageWidth > screenWidth)
+        {
+            imageWidth = screenWidth;
+            imageHeight = (int)(screenWidth / aspectRatio);
+        }
+        if (imageHeight > screenHeight)
+        {
+            imageHeight = screenHeight;
+            imageWidth = (int)(screenHeight * aspectRatio);
+        }
+
         // Resize the dialog window
         SetWindowPos(hDlg, NULL, 0, 0, imageWidth + 2 * padding, imageHeight + 2 * bottompadding, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
 
