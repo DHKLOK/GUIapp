@@ -78,11 +78,18 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
         }
 
         // Resize the dialog window
-        SetWindowPos(hDlg, NULL, 0, 0, imageWidth + 2 * padding, imageHeight + 2 * bottompadding, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+        SetWindowPos(hDlg, NULL, 0, 0, imageWidth + padding * 2, imageHeight + bottompadding * 2, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+
+        // Center the dialog window on the screen
+        int x = (screenWidth - imageWidth - padding * 2) / 2;
+        int y = (screenHeight - imageHeight - bottompadding * 2) / 2;
+        SetWindowPos(hDlg, NULL, x, y, 0, 0, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
 
         // Move the image control
         HWND hImageControl = GetDlgItem(hDlg, IDC_LOWRESPIC_PICTURE);
-        SetWindowPos(hImageControl, NULL, padding, padding, imageWidth, imageHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+        x = padding;
+        y = padding;
+        SetWindowPos(hImageControl, NULL, x, y, imageWidth, imageHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 
         return TRUE;
     }
@@ -112,11 +119,24 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
             imageWidth = bitmapInfo.bmWidth;
             imageHeight = bitmapInfo.bmHeight;
         }
+        // Update imageWidth and imageHeight based on new dimensions of dialog window
+        float aspectRatio = (float)imageWidth / (float)imageHeight;
+        imageWidth = newWidth;
+        imageHeight = (int)(newWidth / aspectRatio);
+        if (imageHeight > newHeight)
+        {
+            imageHeight = newHeight;
+            imageWidth = (int)(newHeight * aspectRatio);
+        }
 
         int newX = (newWidth - imageWidth) / 2;
         int newY = (newHeight - imageHeight) / 2;
 
-        SetWindowPos(hImageControl, NULL, newX, newY, 0, 0, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
+        // Resize and reposition the image control
+        SetWindowPos(hImageControl, NULL, newX, newY, imageWidth, imageHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+
+        // Update the image displayed by the image control
+        SendDlgItemMessage(hDlg, IDC_LOWRESPIC_PICTURE, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hBitmap);
 
         return TRUE;
     }
