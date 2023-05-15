@@ -179,13 +179,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         case ID_HELP_ABOUT:
             // Handle "About" command
-            MessageBox(hWnd, L"Paul's Project\nVersion 1.1", L"About", MB_OK | MB_ICONINFORMATION);
+            MessageBox(hWnd, L"Paul's Project\nVersion 1.2", L"About", MB_OK | MB_ICONINFORMATION);
             break;
 
-        /*case ID_MENU_BANANA:
-            // Handle "Banana" command
-            MessageBox(hWnd, L"You clicked the Banana Item!", L"Banana", MB_OK | MB_ICONINFORMATION);
-            break;*/
+        case ID_SOUND_ROAR:
+            PlaySound(MAKEINTRESOURCE(IDS_ROAR_SOUND), GetModuleHandle(NULL), SND_RESOURCE | SND_ASYNC);
+            return TRUE;
+
         case ID_MENU_BANANA:
             // Handle "Banana" command
             DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_BANANA_DIALOG), hWnd, BananaDialogProc);
