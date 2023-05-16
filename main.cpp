@@ -1,6 +1,41 @@
 #include <windows.h>
 #include "Resource.h"
 #pragma comment(lib, "winmm.lib")
+
+
+INT_PTR CALLBACK WarningDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return TRUE;
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case ID_YES:
+            EndDialog(hDlg, ID_YES);
+            return TRUE;
+        case ID_NO:
+            EndDialog(hDlg, ID_NO);
+            return TRUE;
+        }
+        break;
+    case WM_CLOSE:
+        EndDialog(hDlg, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+
+
+
+
+
+//////////////////////////////////////////   B   A   N   A   N  A ///////////////////////////////////////////////////////
+
+
 INT_PTR CALLBACK BananaDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HBITMAP hBitmap = NULL;
@@ -38,6 +73,12 @@ INT_PTR CALLBACK BananaDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM
 
     return FALSE;
 }
+
+
+
+
+/////////////////////////////////////////////////////// B       E       A     R     ///////////////////////////////////////////////////////////////////////
+
 
 INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -107,13 +148,25 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
         return TRUE;
     }
     case WM_COMMAND:
-        if (LOWORD(wParam) == IDC_PLAY_ROAR && HIWORD(wParam) == BN_CLICKED)
+    {
+        switch (LOWORD(wParam))
         {
-            // Play the roar sound when the "Play Roar" button is clicked
-            PlaySound(MAKEINTRESOURCE(IDS_ROAR_SOUND), GetModuleHandle(NULL), SND_RESOURCE | SND_ASYNC);
-            return (INT_PTR)TRUE;
+        case IDC_PLAY_ROAR:
+        {
+            // Store the result of the dialog box
+            int result = DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_WARNING_DIALOG), hDlg, WarningDialogProc);
+
+            if (result == ID_YES)
+            {
+                // "Face the bear" was selected, play the sound
+                PlaySound(MAKEINTRESOURCE(IDS_ROAR_SOUND), GetModuleHandle(NULL), SND_RESOURCE | SND_ASYNC);
+            }
+            // No need to do anything when "Run away" was selected
+            break;
+        }
         }
         break;
+    }
     case WM_CLOSE:
     {
         if (hBitmap)
@@ -172,8 +225,7 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 
 
 
-
-
+//////////////////////////////////// WINDOW HANDLING //////////////////////////////////////////////////
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -202,10 +254,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             // Handle "About" command
             MessageBox(hWnd, L"Paul's Project\nVersion 1.2", L"About", MB_OK | MB_ICONINFORMATION);
             break;
-
-        case ID_SOUND_ROAR:
-            PlaySound(MAKEINTRESOURCE(IDS_ROAR_SOUND), GetModuleHandle(NULL), SND_RESOURCE | SND_ASYNC);
-            return TRUE;
 
         case ID_MENU_BANANA:
             // Handle "Banana" command
