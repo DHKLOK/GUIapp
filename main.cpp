@@ -1,6 +1,6 @@
 #include <windows.h>
 #include "Resource.h"
-
+#pragma comment(lib, "winmm.lib")
 INT_PTR CALLBACK BananaDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HBITMAP hBitmap = NULL;
@@ -49,6 +49,7 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
     {
     case WM_INITDIALOG:
     {
+
         if (hBitmap == NULL)
         {
             hBitmap = (HBITMAP)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_LOWRESPIC_IMAGE), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
@@ -60,6 +61,9 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
         GetObject(hBitmap, sizeof(BITMAP), &bitmapInfo);
         int imageWidth = bitmapInfo.bmWidth;
         int imageHeight = bitmapInfo.bmHeight;
+
+
+
 
         // Get screen dimensions
         int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -91,8 +95,25 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
         y = padding;
         SetWindowPos(hImageControl, NULL, x, y, imageWidth, imageHeight, SWP_NOZORDER | SWP_NOACTIVATE);
 
+        HWND hButton = CreateWindowEx(0, TEXT("BUTTON"), TEXT("Play Roar"),
+            WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+            10, 10, 100, 30,
+            hDlg, (HMENU)IDC_PLAY_ROAR, GetModuleHandle(NULL), NULL);
+
+        if (hButton == NULL) {
+            MessageBox(NULL, L"Button Creation Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
+        }
+
         return TRUE;
     }
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDC_PLAY_ROAR && HIWORD(wParam) == BN_CLICKED)
+        {
+            // Play the roar sound when the "Play Roar" button is clicked
+            PlaySound(MAKEINTRESOURCE(IDS_ROAR_SOUND), GetModuleHandle(NULL), SND_RESOURCE | SND_ASYNC);
+            return (INT_PTR)TRUE;
+        }
+        break;
     case WM_CLOSE:
     {
         if (hBitmap)
