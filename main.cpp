@@ -1,6 +1,9 @@
 #include <windows.h>
 #include "Resource.h"
 #pragma comment(lib, "winmm.lib")
+#include <Richedit.h>
+#include <Msftedit.h>
+#include <azure/storage/blobs/blob_client.hpp>
 
 
 INT_PTR CALLBACK WarningDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -227,9 +230,39 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 
 //////////////////////////////////// WINDOW HANDLING //////////////////////////////////////////////////
 
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
+    
+    
+    
+    case WM_INITDIALOG:
+    {
+        CHARFORMAT cf = { 0 };
+        cf.cbSize = sizeof(CHARFORMAT);
+        cf.dwMask = CFM_COLOR;
+
+
+        HWND hRichEdit = GetDlgItem(hWnd, IDC_RICHEDIT);
+
+        // Add text to the Rich Edit Control
+        SendMessage(hRichEdit, WM_SETTEXT, 0, (LPARAM)L"Hello, Rainbow Text!");
+
+        // Change the color of the first character to red
+        cf.crTextColor = RGB(255, 0, 0);
+        SendMessage(hRichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+
+        // Select the second character and change its color to green
+        cf.crTextColor = RGB(0, 255, 0);
+        CHARRANGE range = { 1, 2 };
+        SendMessage(hRichEdit, EM_EXSETSEL, 0, (LPARAM)&range);
+        SendMessage(hRichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+
+        // You can continue this process to create a rainbow effect
+        break;
+    }
+    
+    
+    
     case WM_DESTROY:
         // Handle window destruction
         PostQuitMessage(0);
@@ -282,6 +315,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         _In_opt_ HINSTANCE hPrevInstance,
         _In_ LPWSTR lpCmdLine,
         _In_ int nCmdShow)
+        //LoadLibrary("Msftedit.dll");
     {
         const wchar_t CLASS_NAME[] = L"MyWindowClass";
 
