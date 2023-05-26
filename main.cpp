@@ -2,8 +2,6 @@
 #include "Resource.h"
 #pragma comment(lib, "winmm.lib")
 #include <Richedit.h>
-#include <Msftedit.h>
-#include <azure/storage/blobs/blob_client.hpp>
 
 
 INT_PTR CALLBACK WarningDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -233,36 +231,6 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     
-    
-    
-    case WM_INITDIALOG:
-    {
-        CHARFORMAT cf = { 0 };
-        cf.cbSize = sizeof(CHARFORMAT);
-        cf.dwMask = CFM_COLOR;
-
-
-        HWND hRichEdit = GetDlgItem(hWnd, IDC_RICHEDIT);
-
-        // Add text to the Rich Edit Control
-        SendMessage(hRichEdit, WM_SETTEXT, 0, (LPARAM)L"Hello, Rainbow Text!");
-
-        // Change the color of the first character to red
-        cf.crTextColor = RGB(255, 0, 0);
-        SendMessage(hRichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
-
-        // Select the second character and change its color to green
-        cf.crTextColor = RGB(0, 255, 0);
-        CHARRANGE range = { 1, 2 };
-        SendMessage(hRichEdit, EM_EXSETSEL, 0, (LPARAM)&range);
-        SendMessage(hRichEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
-
-        // You can continue this process to create a rainbow effect
-        break;
-    }
-    
-    
-    
     case WM_DESTROY:
         // Handle window destruction
         PostQuitMessage(0);
@@ -273,6 +241,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         ValidateRect(hWnd, NULL);
         break;
     
+    case WM_CREATE:
+    {
+        // Create the static text control.
+        HWND hStatic = CreateWindowEx(0, TEXT("STATIC"), TEXT("Hello, Rainbow Text!"),
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            10, 10, 200, 100, hWnd, NULL,
+            (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+
+        if (hStatic == NULL)
+        {
+            MessageBox(NULL, TEXT("Failed to create static text!"), TEXT("Error!"), MB_ICONEXCLAMATION | MB_OK);
+            return -1; // Fail WM_CREATE
+        }
+
+        InvalidateRect(hStatic, NULL, TRUE);
+        UpdateWindow(hStatic);
+
+        break;
+    }
+
+
+
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
@@ -338,7 +328,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         // Step 2: Create the window
         HWND hWnd = CreateWindowEx(0, CLASS_NAME, L"Pauls Project",
             WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-            500, 300, NULL, LoadMenu(hInstance, MAKEINTRESOURCE(MENU_MAIN)), hInstance, NULL);
+            800, 600, NULL, LoadMenu(hInstance, MAKEINTRESOURCE(MENU_MAIN)), hInstance, NULL);
 
         if (!hWnd)
         {
