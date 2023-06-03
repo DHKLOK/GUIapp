@@ -3,7 +3,7 @@
 #pragma comment(lib, "winmm.lib")
 #include <Richedit.h>
 RECT rect;
-HBRUSH hbrBkgnd = CreateSolidBrush(RGB(255, 0, 255));
+int wmId;
 
 INT_PTR CALLBACK WarningDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -226,6 +226,8 @@ INT_PTR CALLBACK LOWRESPICDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	static HWND hStatic = NULL;
 	static HBRUSH hbrBkgnd = NULL;
+
+
 	switch (message) {
 
 	case WM_DESTROY:
@@ -238,15 +240,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	{
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
-
-		// Perform your painting operations here
-		// Use the hdc (device context) to draw on the window
-
-		// Example: Fill the entire window with the background brush
 		RECT rect;
 		GetClientRect(hWnd, &rect);
 		FillRect(hdc, &rect, hbrBkgnd);
-
 		EndPaint(hWnd, &ps);
 		break;
 	}
@@ -270,33 +266,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	case WM_CTLCOLORSTATIC:
 	{
 		HDC hdcStatic = (HDC)wParam;
-		SetTextColor(hdcStatic, RGB(255, 255, 255));  // Set the text color
-		SetBkMode(hdcStatic, TRANSPARENT);  // Set the background mode
-		return (INT_PTR)hbrBkgnd;  // Return a brush to color the background
+		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetBkMode(hdcStatic, TRANSPARENT);  
+		return (INT_PTR)hbrBkgnd;  
 	}
 	break;
 
 	case WM_ERASEBKGND:
+	{
 		if (hbrBkgnd == NULL)
-			hbrBkgnd = CreateSolidBrush(RGB(255, 0, 255)); // Create the brush if it's not already created
+			hbrBkgnd = CreateSolidBrush(RGB(255, 0, 255));
 
 		if (hbrBkgnd)
 		{
 			RECT rect;
 			GetClientRect(hWnd, &rect);
-			FillRect((HDC)wParam, &rect, hbrBkgnd);
-			InvalidateRect(hWnd, NULL, TRUE);
 
-			// Bring the static text control to the top
-			if (hStatic != NULL)
-				BringWindowToTop(hStatic);
+			// Only fill the background if the color has changed
+			if (wParam != NULL)
+			{
+				FillRect((HDC)wParam, &rect, hbrBkgnd);
+				// Bring the static text control to the top
+				if (hStatic != NULL)
+					BringWindowToTop(hStatic);
+			}
 
 			return 1;
 		}
 		break;
+	}
 	case WM_COMMAND:
 	{
-		int wmId = LOWORD(wParam);
+		wmId = LOWORD(wParam);
 		switch (wmId)
 		{
 		case ID_FILE_EXIT:
@@ -322,6 +323,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				DeleteObject(hbrBkgnd);
 			hbrBkgnd = CreateSolidBrush(RGB(255, 0, 0));
 			InvalidateRect(hWnd, NULL, TRUE);
+
+			// Redraw the static text control
+			if (hStatic != NULL)
+				InvalidateRect(hStatic, NULL, TRUE);
 			break;
 
 		case ID_BACKGROUND_GREEN:
@@ -329,6 +334,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				DeleteObject(hbrBkgnd);
 			hbrBkgnd = CreateSolidBrush(RGB(0, 255, 0));
 			InvalidateRect(hWnd, NULL, TRUE);
+
+			// Redraw the static text control
+			if (hStatic != NULL)
+				InvalidateRect(hStatic, NULL, TRUE);
 			break;
 
 		case ID_BACKGROUND_BLUE:
@@ -336,15 +345,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				DeleteObject(hbrBkgnd);
 			hbrBkgnd = CreateSolidBrush(RGB(0, 0, 255));
 			InvalidateRect(hWnd, NULL, TRUE);
+
+			// Redraw the static text control
+			if (hStatic != NULL)
+				InvalidateRect(hStatic, NULL, TRUE);
 			break;
 		}
 		break;
+	
+
 	}
 	default:
 		// Forward unhandled messages to the default window procedure
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
+
 }
 
 
